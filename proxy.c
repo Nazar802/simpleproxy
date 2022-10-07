@@ -2,8 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
-// #include <winsock2.h>
-// #include <ws2tcpip.h>
+#include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
@@ -54,7 +53,7 @@ void handle_client_connection(int client_socket_fd,
                     addrs_iter->ai_addrlen) != -1) { 
             break;
         }
-        closesocket(backend_socket_fd);
+        close(backend_socket_fd);
     }
 
     // Check if the connection was established
@@ -91,8 +90,8 @@ int main(int argc, char *argv[]) {
 
     if (argc != 4) {
         fprintf(stderr, 
-                "Usage: %s   \n", 
-                argv[0]);
+                "Usage: proxy <listen_port> <proxy_addres> <proxy_port>\n"
+                );
         exit(1);
     }
     server_port_str = argv[1];
