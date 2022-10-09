@@ -27,7 +27,7 @@ void handle_client_connection(int client_socket_fd,
     int bytes_read;
 
     memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_family = AF_UNSPEC;
+    hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
 
     // Panic definition
@@ -45,32 +45,38 @@ void handle_client_connection(int client_socket_fd,
         backend_socket_fd = socket(addrs_iter->ai_family, 
                                    addrs_iter->ai_socktype,
                                    addrs_iter->ai_protocol);
+
         if (backend_socket_fd == -1) {
             continue;
         }
         if (connect(backend_socket_fd, 
                     addrs_iter->ai_addr, 
-                    addrs_iter->ai_addrlen) != -1) { 
+                    addrs_iter->ai_addrlen) != -1) {
+                fprintf(stderr, "Connection established\n");
             break;
         }
         close(backend_socket_fd);
+        fprintf(stderr, "Connection closed\n");
     }
 
     // Check if the connection was established
     if (addrs_iter == NULL) {
-        fprintf(stderr, "Couldn't connect to backend");
+        fprintf(stderr, "Couldn't connect to backend\n");
         exit(1);
     }
     freeaddrinfo(addrs);
 
     bytes_read = read(client_socket_fd, buffer, BUFFER_SIZE);
     write(backend_socket_fd, buffer, bytes_read);
+    fprintf(stderr, "Proxy is doing something\n");
 
     while (bytes_read = read(backend_socket_fd, buffer, BUFFER_SIZE)) {
         write(client_socket_fd, buffer, bytes_read);
+        fprintf(stderr, "Proxy is not done yet\n");
     }
 
     close(client_socket_fd);
+    fprintf(stderr, "Connection closed");
 }
 
 int main(int argc, char *argv[]) {
@@ -99,7 +105,7 @@ int main(int argc, char *argv[]) {
     backend_port_str = argv[3];
 
     memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_family = AF_UNSPEC;
+    hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 

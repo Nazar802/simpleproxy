@@ -1,6 +1,11 @@
 # Prerequisites
 *.d
 
+# Temporary compiler files
+*.i
+*.s
+
+
 # Object files
 *.o
 *.ko
