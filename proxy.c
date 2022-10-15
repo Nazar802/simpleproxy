@@ -23,8 +23,10 @@ void handle_client_connection(int client_socket_fd,
 
     int backend_socket_fd;
 
-    char buffer[BUFFER_SIZE];
-    int bytes_read;
+    char buffer_client[BUFFER_SIZE];
+    char buffer_backend[BUFFER_SIZE];
+    int bytes_read_client;
+    int bytes_read_backend;
 
     memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = AF_INET;
@@ -66,18 +68,18 @@ void handle_client_connection(int client_socket_fd,
     }
     freeaddrinfo(addrs);
 
-    // bytes_read = read(client_socket_fd, buffer, BUFFER_SIZE);
-    // write(backend_socket_fd, buffer, bytes_read);
+    // bytes_read_client = read(client_socket_fd, buffer_client, BUFFER_SIZE);
+    // write(backend_socket_fd, buffer_backend, bytes_read_client);
 
-    while (bytes_read = read(client_socket_fd, buffer, BUFFER_SIZE)) {
+    while (bytes_read_client = read(client_socket_fd, buffer_client, BUFFER_SIZE)) {
         fprintf(stderr, "Start\n");
-        write(backend_socket_fd, buffer, bytes_read);
+        write(backend_socket_fd, buffer_backend, bytes_read_client);
         fprintf(stderr, "Writing to backend\n");
     }
-    fprintf(stderr, "Done writing to client\n");
+    fprintf(stderr, "Done writing to backend\n");
 
-    while (bytes_read = read(backend_socket_fd, buffer, BUFFER_SIZE)) {
-        write(client_socket_fd, buffer, bytes_read);
+    while (bytes_read_backend = read(backend_socket_fd, buffer_backend, BUFFER_SIZE)) {
+        write(client_socket_fd, buffer_client, bytes_read_backend);
         fprintf(stderr, "Writing to client\n");
     }
 
