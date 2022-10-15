@@ -66,13 +66,19 @@ void handle_client_connection(int client_socket_fd,
     }
     freeaddrinfo(addrs);
 
-    bytes_read = read(client_socket_fd, buffer, BUFFER_SIZE);
-    write(backend_socket_fd, buffer, bytes_read);
-    fprintf(stderr, "Proxy is doing something\n");
+    // bytes_read = read(client_socket_fd, buffer, BUFFER_SIZE);
+    // write(backend_socket_fd, buffer, bytes_read);
+
+    while (bytes_read = read(client_socket_fd, buffer, BUFFER_SIZE)) {
+        fprintf(stderr, "Start\n");
+        write(backend_socket_fd, buffer, bytes_read);
+        fprintf(stderr, "Writing to backend\n");
+    }
+    fprintf(stderr, "Done writing to client\n");
 
     while (bytes_read = read(backend_socket_fd, buffer, BUFFER_SIZE)) {
         write(client_socket_fd, buffer, bytes_read);
-        fprintf(stderr, "Proxy is not done yet\n");
+        fprintf(stderr, "Writing to client\n");
     }
 
     close(client_socket_fd);
