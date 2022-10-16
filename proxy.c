@@ -3,6 +3,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
@@ -17,7 +18,7 @@ make my life easier
 */
 
 // Socket wrappers
-int w_socket(int domain) {
+int w_socket(int domain, int type, int protocol) {
     int rc = socket(AF_INET, SOCK_STREAM, 0);
     if (0 > rc) {
         perror("socket");
@@ -96,7 +97,7 @@ int w_open(const char *pathname, int flags, mode_t mode) {
 }
 
 int w_close(int fd) {
-    int rc = open(fd);
+    int rc = close(fd);
     if (0 > rc) {
         perror("close");
     }
@@ -104,8 +105,15 @@ int w_close(int fd) {
 }
 
 
+/*
+Sockets
+*/
 
-int server_socket(int port) {
+int open_socket(int port) {
+    /*
+    Create a socket and accept requests
+    */
+
     // server info
     struct sockaddr_in server_info = {0};
     server_info.sin_family = AF_INET;
@@ -117,31 +125,27 @@ int server_socket(int port) {
     socklen_t client_info_len = sizeof(client_info);
 
     // create server socket
-    int server_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (0 > sfd) {
-        perror("socket");
-        return -1;
-    }
+    int server_fd = w_socket(AF_INET, SOCK_STREAM, 0);
 
     // bind
-    if (0 > bind(sfd, (struct sockaddr*)&server_info, server_info_len)) {
-        perror("bind");
-        return -1;
-    }
+    w_bind(server_fd, (struct sockaddr*)&server_info, server_info_len);
 
     // listen
-    if (0 > listen(sfd, 0)) {
-        perror("listen");
-        return -1;
-    }
+    w_listen(server_fd, 0);
 
     // accept
-    int cfd = accept(sfd, &client_info, &client_info_len);
-    if (0 > cfd) {
-        perror("accept");
-        return -1;
-    }
+    w_accept(server_fd, &client_info, &client_info_len);
+    return server_fd;
 }
+
+int read_response() {
+    return 0;
+}
+
+int write_response() {
+    return 0;
+}
+
 
 int main(int argc, char *argv) {
     // accept client requests
@@ -151,4 +155,5 @@ int main(int argc, char *argv) {
     // read the response
 
     // send it back to the client
+    return 0;
 }
